@@ -5,12 +5,12 @@ import java.util.List;
 public class Plot extends JPanel {
 
     private List<MyPoints> points;
-    private List<List<MyPoints>> centroidsByM;
-    private final int scale = 400; // Increase scale for larger graph
+    private List<MyPoints> centroids;
+    private final int scale = 400; // Scaling factor for coordinates
 
-    public Plot(List<MyPoints> points, List<List<MyPoints>> centroidsByM) {
+    public Plot(List<MyPoints> points, List<MyPoints> centroids) {
         this.points = points;
-        this.centroidsByM = centroidsByM;
+        this.centroids = centroids;
     }
 
     @Override
@@ -23,35 +23,29 @@ public class Plot extends JPanel {
         for (MyPoints point : points) {
             int x = (int) (point.getX() * scale); // Scaling factor for x-coordinate
             int y = (int) (point.getY() * scale); // Scaling factor for y-coordinate
-            g2d.drawLine(x - 3, y, x + 3, y); // Draw horizontal line
-            g2d.drawLine(x, y - 3, x, y + 3); // Draw vertical line
+            g2d.drawLine(x - 2, y, x + 2, y); // Draw horizontal line
+            g2d.drawLine(x, y - 2, x, y + 2); // Draw vertical line
         }
 
-        // Plot centroids as "*"
+        // Plot centroids
         g2d.setColor(Color.BLACK); // Set color for centroids
-        for (List<MyPoints> centroidList : centroidsByM) {
-            for (MyPoints centroid : centroidList) {
-                int x = (int) (centroid.getX() * scale); // Scaling factor for x-coordinate
-                int y = (int) (centroid.getY() * scale); // Scaling factor for y-coordinate
-                g2d.drawLine(x - 3, y - 3, x + 3, y + 3); // Draw diagonal line
-                g2d.drawLine(x - 3, y + 3, x + 3, y - 3); // Draw diagonal line
-            }
+        for (MyPoints centroid : centroids) {
+            int x = (int) (centroid.getX() * scale); // Scaling factor for x-coordinate
+            int y = (int) (centroid.getY() * scale); // Scaling factor for y-coordinate
+            g2d.drawLine(x - 3, y - 3, x + 3, y + 3); // Draw diagonal line
+            g2d.drawLine(x - 3, y + 3, x + 3, y - 3); // Draw diagonal line
         }
+
+        // Highlight centroid with minimum clustering error
+        g2d.setColor(Color.RED);
+        MyPoints minErrorCentroid = centroids.get(0); // Assuming the first centroid has minimum error
+        int xMin = (int) (minErrorCentroid.getX() * scale);
+        int yMin = (int) (minErrorCentroid.getY() * scale);
+        g2d.drawRect(xMin - 4, yMin - 4, 8, 8); // Highlight the centroid
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(800, 800); // Set preferred size of the panel
-    }
-
-    public static void displayPlot(List<MyPoints> points, List<List<MyPoints>> centroidsByM) {
-        JFrame frame = new JFrame("Combined Plot");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Plot plot = new Plot(points, centroidsByM);
-        JScrollPane scrollPane = new JScrollPane(plot); // Add scroll pane for larger plot
-        frame.add(scrollPane);
-        frame.setSize(900, 900); // Increase frame size for a larger plot area
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        return new Dimension(800, 600); // Set preferred size of the panel
     }
 }

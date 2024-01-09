@@ -13,13 +13,13 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-
         int[] MValues = {3, 6, 9, 12}; // Different values of M
         int numberOfRuns = 15; // Number of runs
 
         Map<Integer, List<MyPoints>> bestCentroidsByM = new HashMap<>();
         Map<Integer, Double> minErrorByM = new HashMap<>();
 
+        // For each M value, find the centroid with the minimum clustering error
         for (int M : MValues) {
             double minError = Double.MAX_VALUE;
             MyPoints bestCentroid = null;
@@ -34,7 +34,7 @@ public class Main {
 
                 if (clusteringError < minError) {
                     minError = clusteringError;
-                    bestCentroid = centroids.get(0); // Update the best centroids
+                    bestCentroid = centroids.get(0); // Update the best centroid
                 }
             }
 
@@ -44,34 +44,30 @@ public class Main {
             List<MyPoints> bestCentroidList = new ArrayList<>();
             bestCentroidList.add(bestCentroid);
             bestCentroidsByM.put(M, bestCentroidList);
-
         }
 
-        // Print minimum errors for each M
-        for (Map.Entry<Integer, Double> entry : minErrorByM.entrySet()) {
-            System.out.println("Minimum Clustering Error for M=" + entry.getKey() + ": " + entry.getValue());
-        }
-
-        // Save best centroids for each M
-        for (Map.Entry<Integer, List<MyPoints>> entry : bestCentroidsByM.entrySet()) {
-            saveCentroidsToFile("best_centroids_M" + entry.getKey() + ".txt", entry.getValue());
-        }
         // Display plots for best centroids by M value
-
-
-
-        List<List<MyPoints>> allCentroids = new ArrayList<>();
         for (Map.Entry<Integer, List<MyPoints>> entry : bestCentroidsByM.entrySet()) {
-            allCentroids.add(entry.getValue());
+            int M = entry.getKey();
+            List<MyPoints> bestCentroidList = entry.getValue();
+
+            JFrame frame = new JFrame("Plot for M=" + M + " with Min Error=" + minErrorByM.get(M));
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            List<MyPoints> points = loadPointsFromFile("points.txt");
+            List<MyPoints> centroids = bestCentroidList;
+
+            Plot plot = new Plot(points, centroids);
+            frame.add(plot);
+
+            frame.setSize(800, 600);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
         }
-
-        JFrame frame = new JFrame("Combined Plot for All M Values");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Plot.displayPlot(loadPointsFromFile("points.txt"), allCentroids);
-
-
-
     }
+
+    // Other methods remain unchanged
+
     private static List<MyPoints> loadPointsFromFile(String filename) {
         List<MyPoints> points = new ArrayList<>();
 
@@ -109,5 +105,4 @@ public class Main {
 
 
 }
-
 
